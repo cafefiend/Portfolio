@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Live PSI Indicator</title>
+
+    <!-- Pulling JQuery from Google API -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Pulling fonts from Google Fonts -->
+    <!-- TODO: Host fonts locally to avoid EU GDPR fine -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Libre+Franklin:wght@600&display=swap" rel="stylesheet"> 
+    
+    <!-- CSS -->
+    <style>
+        body {
+            /*Gruvbox-Light colors*/
+            --bg0: #9acbfcc4;   --fg0: #29292c;
+            --bg1: #b2c5eb;   --fg1: #29292c;
+            --bg2: #a1add5;   --fg2: #acb0c0;
+            --bg3: #93a0bd;   --fg3: #807f90;
+            --bg4: #8884a8;   --fg4: #4f4f53;
+            --violet: #6f1dcc; --violet_d: #2c0150;
+            --blu1: #180ed6; --blu_d: #0309af;
+            --blu2: #2127d7; --blu2_d: #1417b5;
+            --blu3: #1a5198; --blu3_d: #0e3979;
+            --blu: #6f90d7; --blu_d: #0a4cd9;
+            --gry: #859bc0; --gry_d: #33373d;
+
+            background: var(--bg0);
+            color: var(--fg0);
+            font-family: 'system-ui','Rubik', monospace;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Gill Sans', 'sans-serif';
+            font-weight: bold;
+        }
+
+        /* Link formatting */
+        a:link {color: var(--org_d);text-decoration: none;}
+        a:visited {color: var(--red);}
+        a:hover {color: var(--org);}
+
+        /* Cell formatting */
+        table {
+            border-collapse: collapse;
+            font: inherit;
+            width: 50vw;
+            margin: auto;
+            max-width: 600px;
+        }
+        td, th {
+            text-align: center;
+            padding: 0.5em 1em 0.5em;
+            min-width: 4.5em;
+            white-space: nowrap;
+        }
+        th {
+            text-transform: capitalize;
+        }
+
+        tr:nth-child(even) {background-color: var(--bg2);}
+        tr:nth-child(odd) {background-color: var(--bg1);}
+        tr:nth-child(1) {background-color: var(--fg1);color: var(--bg0);}
+        
+        /* Tooltip snippet */
+        /* (Source: https://speckyboy.com/free-css-tooltip-snippets) */
+
+        /************** Tool Tip Styles ********************************/
+        .tooltip {
+            display: inline-block;
+            position: relative;
+            margin-left: 0.5em;
+        }
+        .tooltip .tooltip__info {
+            display: none;
+            background: var(--fg1);
+            border: 1px solid var(--fg1);
+            border-radius: 2px;
+            font-size: 1em;
+            padding: 1.2em;
+            position: absolute;
+            left: 30px;
+            top: -20px;
+            width: auto;
+            z-index: 2;
+        }
+        .tooltip .tooltip__info:before, .tooltip .tooltip__info:after {
+        content: "";
+        position: absolute;
+        left: -10px;
+        top: 7px;
+        border-style: solid;
+        border-width: 10px 10px 10px 0;
+        border-color: transparent var(--fg1);
+        }
+        .tooltip .tooltip__info:after {
+        left: -8px;
+        border-right-color: var(--fg1);
+        }
+        .tooltip .tooltip__info .info {
+        display: block;
+        color: var(--bg0);
+        }
+        .tooltip .tooltip__info .info__title {
+        color: var(--bg2);
+        }
+        .tooltip:hover .tooltip__info, .tooltip:focus .tooltip__info {
+        display: inline-block;
+        }
+        a:focus + .tooltip .tooltip__info {
+        display: inline-block;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <h1>Live PSI update</h1>
+    <p><span id="timestamp"></span></p>
+    <table id="psi_table"></table>
+    <p><em>Source: </em><a href="https://data.gov.sg/dataset/psi" target="_blank">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
+  
+
+    <script>
+        let raw_data = {};
+        let readings = {};
+        let timestamp = "";
+        let rows = {
+            psi_twenty_four_hourly: "PSI (24h)",
+            pm10_twenty_four_hourly: "PM10 (24h)",
+            pm10_sub_index: "PM10 (sub-index)",
+            pm25_twenty_four_hourly: "PM25 (24h)",
+            pm25_sub_index: "PM25 (sub-index)",
+            so2_twenty_four_hourly: "SO<sub>2</sub> (24h)",
+            so2_sub_index: "SO<sub>2</sub> (sub-index)",
+            co_eight_hour_max: "CO (8h)",
+            co_sub_index: "CO (sub-index)",
+            no2_one_hour_max: "NO<sub>2</sub> (1h)",
+            o3_eight_hour_max: "O<sub>3</sub> (8h)",
+            o3_sub_index: "O<sub>3</sub> (sub-index)"
+        };
+        let columns = ["central","north","south","east","west","national"];
+        let def_table = {
+            // Placeholder definitions
+            psi_twenty_four_hourly: "PSI (24h)",
+            pm10_twenty_four_hourly: "PM10 (24h)",
+            pm10_sub_index: "PM10 (sub-index)",
+            pm25_twenty_four_hourly: "PM25 (24h)",
+            pm25_sub_index: "PM25 (sub-index)",
+            so2_twenty_four_hourly: "SO<sub>2</sub> (24h)",
+            so2_sub_index: "SO<sub>2</sub> (sub-index)",
+            co_eight_hour_max: "CO (8h)",
+            co_sub_index: "CO (sub-index)",
+            no2_one_hour_max: "NO<sub>2</sub> (1h)",
+            o3_eight_hour_max: "O<sub>3</sub> (8h)",
+            o3_sub_index: "O<sub>3</sub> (sub-index)"
+        };
+
+        async function fetchdata() {
+            let response = await fetch('https://api.data.gov.sg/v1/environment/psi');
+            let data = await response.json();
+            return data;
+        };
+
+        fetchdata().then(data => {
+            
+            raw_data = data;
+            readings = raw_data["items"][0]["readings"];
+            
+            // Append timestamp
+            timestamp += "<em>Last updated: </em>";
+            timestamp += Date(raw_data["items"][0]["timestamp"]);
+            $("#timestamp").append(timestamp);            
+
+            // Populate psi_table with columns
+            $("#psi_table").append(`
+                <tr id="columns">
+                    <th style="text-align:left;">Readings</th>
+                </tr>
+            `);
+            $.each(columns, function(index, region){
+                $("#columns").append(`<th>${region}</th>`);
+            });
+
+            // Populate psi_table with rows
+            $.each(rows, function(key, value) {
+                $("#psi_table").append(`
+                    <tr id="${key}">
+                        <td style="text-align:left;">${value}<span class="tooltip"><sub>[more]</sub>
+                            <p class="tooltip__info">
+                            <span class="info" id="${key}_hover">
+                            </span>
+                            </p>
+                        </span></td>
+                    </tr>
+                `);
+                $.each(columns, function(index, region){
+                    $(`#${key}`).append(`
+                        <td>${readings[key][region]}</td>
+                    `);
+                });
+            });
+
+          
+            $.each(def_table, function(key, value) {
+                let id = key + "_hover";
+                $("#" + id).append(key);
+            });
+
+            
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HASS Assignment 3</title>
+
+    <!-- Pulling fonts from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Libre+Franklin:wght@600&display=swap"rel="stylesheet"> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- CSS -->
+    <style>
+        *{
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        }
+
+        body {
+            /*Gruvbox-Light colors*/
+            --bg0: #cbd6ec;   --fg0: #29292c;
+            background: var(--bg0);
+            color: var(--fg0);
+            font-family: 'Avenir', 'sans-serif', monospace;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Avenir', 'sans-serif';
+            font-size: 12;
+            font-weight: bold;
+            position: center;
+        }
+   
+     /* .chartMenu {
+        width: 100vw;
+        height: 40px;
+        background: #1A1A1A;
+        color: rgba(54, 162, 235, 1);
+      }
+      .chartMenu p {
+        padding: 10px;
+        font-size: 20px;
+      } */
+
+     .chartCard {
+        width: 100vw;
+        height: calc(80vh - 40px);
+        background: #cbd6ec;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chartBox {
+        width: 800px;
+        padding: 20px;
+        border-radius: 10px;
+        border: solid 3px rgba(54, 162, 235, 1);
+        background: white;
+      }
+
+</style>
+</head>
+
+<body>
+<br> 
+<h1> How does the price of 4-Room flats in Ang Mo Kio compare between 2017 to 2022?</h1>
+<br>
+<p> Aim: To explore how the prices of 4-Room HDB flats have changed over the last 6 years based on the median price. <br>
+
+</p>
+  <div class="chartCard">
+        <div class="chartBox">
+      <canvas id="myChart"></canvas>
+    </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.3/d3.min.js" integrity="sha512-Bg2eiKHzTFFm3RXa2xWihCacicF47EiEtkk/qD2UpqimWHNnQsIJxuwrf958rNHVvkpcjRgUyPblU6LOoAxTSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const chartData = 'new_resaleAMK_median.csv';
+    
+    //parse the file from CSV to JSON
+    d3.csv(chartData).then(function(datapoints){
+      console.log(datapoints)
+      const resalePrice = [];
+      const Year = [];
+
+      for (i = 0; i < datapoints.length; i ++ ) {
+        resalePrice.push(datapoints[i].resale_price)
+        Year.push(datapoints[i].Year)
+      } 
+       
+      // setup 
+      const data = {
+        labels: Year,
+        datasets: [{
+          label: 'Median Resale Price $',
+          data: resalePrice,
+          backgroundColor: [
+            'rgba(0, 31, 125, 0.5)',
+            'rgba(0, 31, 125, 0.5)',
+            'rgba(255, 206, 86, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(0, 31, 125, 0.5)',
+            'rgba(0, 31, 125, 0.5)',
+            'rgba(0, 31, 125, 0.5)'
+          ],
+          borderColor: [
+            'rgba(0, 31, 125, 0.8)',
+            'rgba(0, 31, 125, 0.8)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(0, 31, 125, 0.8)',
+            'rgba(0, 31, 125, 0.8)',
+            'rgba(0, 31, 125, 0.8)'
+          ],
+          borderWidth: 1
+        }]
+      };
+
+      // config 
+      const config = {
+        type: 'bar',
+        data,
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      };
+      
+      // render init block
+      const myChart = new Chart(
+        document.getElementById('myChart'),
+        config
+      );
+
+    });
+   
+  </script>
+  </body>
+
+  </html>
