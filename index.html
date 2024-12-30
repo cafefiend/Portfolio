@@ -417,21 +417,29 @@
             async function loadData() {
                 const [mapData, popData] = await 
                 Promise.all([d3.json("Assets/Choropleth/sgmap.json"), 
-                d3.csv("Assets/Choropleth/population2022.csv")])
+                d3.csv("Assets/Choropleth/population2022.csv")]);
 
                 state['mapData'] = mapData
                 state['subzoneToPopMap'] = {}
-                for (const { Subzone, Population } of popData) {
-                    state['subzoneToPopMap'][Subzone.toLowerCase()] = +Population
+                state['subzoneToSubzoneMap']= {}
+                for (const { Subzone, Population, PlanningArea } of popData) {
+                    const normalizedSubzone = Subzone.toLowerCase().trim();
+                    state['subzoneToPopMap'][normalizedSubzone.toLowerCase()] = +Population;
+                    state['subzoneToSubzoneMap'][normalizedSubzone.toLowerCase()] = Subzone;
                 }
 
                 console.log('mapData', mapData);
                 console.log('popData', popData);
                 console.log('subzoneToPopMap', state['subzoneToPopMap']);
+                console.log('subzoneToSubzoneMap', state['subzoneToSubzoneMap']);
             }
 
             function featureToPop(feature) {
-                return state['subzoneToPopMap'][feature.properties['Subzone Name'].toLowerCase()] || -1
+                return state['subzoneToPopMap'][feature.properties['Subzone Name'].toLowerCase().trim()] || -1
+            }
+
+            function featureToPlanningArea(feature) {
+                 return state['subzoneToSubzoneMap'][feature.properties['Subzone Name'].toLowerCase()] || "Unknown";
             }
 
             async function main() {
@@ -463,12 +471,19 @@
                         return scale(val)
                     })
                     .on("mouseover", function(e, f) {		
+                        const subzoneName = f.properties['Subzone Name'].toLowerCase().trim();
                         const pop = featureToPop(f)
+                        const subzone = state['subzoneToSubzoneMap'][subzoneName] || "Unknown";
                         tooltip
                             .style('opacity', 1)
                             .style("left", (e.pageX) + "px")		
                             .style("top", (e.pageY - 28) + "px")
-                            .text(`Population: ${pop == -1 ? "Unknown" : pop}`)
+                            .html(`
+                            <div style = "font-size: 0.86em; padding: 5px; line-height:1.5;">
+                                <strong>Subzone:</strong> ${subzone} <br>
+                                <strong> Population:</strong> ${pop == -1 ? "Uknown" : pop}
+                            </div>
+                        `);
                     })					
                     .on("mouseout", function() {		
                         tooltip.style('opacity', 0)
