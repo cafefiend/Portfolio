@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,11 +37,9 @@
         h2 {
             color: rgb(101, 135, 228);
         }
-
-        .menu {
-            display: none; /* Removed float-based layout */
+        a:visited {
+            color: #9683f6;
         }
-
         .main {
             width: 80%;
             max-width: 1200px;
@@ -48,22 +47,13 @@
             overflow: auto;
             text-align: left;
         }
-
-        .footer {
-            text-align: center;
-            margin: 20px;
-            padding: 5px;
-            width: 100vw;
-            background-color: rgb(146, 144, 144);
-            color: rgb(0, 0, 0);
-        }
-
+     
         /* PSI Table Style */
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            background-color: #9acbfcc4;
+            background-color: #8ba7fb;
             color: #29292c;
         }
 
@@ -74,21 +64,19 @@
 
         th {
             background-color: #29292c;
-            color: #9acbfcc4;
+            color: #8ba7fb;
             text-transform: capitalize;
         }
 
         tr:nth-child(even) {
-            background-color: #b2c5eb;
+            background-color: #8ba7fb;
         }
 
         tr:nth-child(odd) {
             background-color: #ffffff;
         }
 
-        a:visited {
-            color: rgb(131, 181, 246);
-        }
+       
 
         /* Tooltip styling */
         .tooltip {
@@ -123,62 +111,77 @@
             background: rgba(0,0,0,0.6);
         }
 
-        .chartBox {
-            width: 100%;
-            max-width: 800px;
-            min-height: auto;
-            padding: 20px;
-            border-radius: 10px;
-            border: solid 1px rgb(255, 255, 255);
-            background: white;
-            margin: 10px auto;
-            text-align: center;
-        }
+        /*Chart Styles*/
+        .chart-grid {
+            box-sizing: border-box;
+            width: 960px;
+            margin: auto;
+            padding: 0 20px;
+            overflow: auto;
 
-        #tooltip {
-            position: absolute;
-            background-color: rgba(0,0,0,0.7);
-            color: rgb(255, 255, 255);
-            padding: 5px;
-            border-radius: 5px;
-            opacity: 0;
-            pointer-events: none;
         }
-
-            /* Choropleth map container */
-        #map-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
+            
+        #barChart {
             width: 100%;
-            min-height: 500px;
-            margin-top: auto;
-           
+            height: auto;
+            display: block;
+            margin: auto;
+        }
+        
+        /* Dropdown Menu*/
+        label {
+            color: white; 
+            font-size: 12px;
+            font-weight: bold;
         }
 
         /* SVG styles for choropleth */
         svg {
-            max-width: 100%;
+            display: block;
+            width: 100%;
             height: auto;
+        }
+
+        .svg_choropleth {
+            position: absolute;
+            width: 100%;
+        }
+    
+         /* Choropleth map container */
+
+         .content-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .map-container {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            min-height: auto;
+            margin-top: auto;
         }
 
         /* Legend container */
         .legend-container {
-            position: relative;
+            box-sizing:border-box;
+            top: 10px;
             bottom: 10px;
-            right: 0;
-            width: 150px;
+            right: 0px;
+            width: 200px ;
             background: transparent;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
             font-size: 12px;
             color: #ffffff;
-            z-index: 10;
-            height: auto;
+            height: fit-content;
+            overflow:auto;
+            
         }
-
+            
         .legend-container rect {
             width: fit-content;
             height: 20px;
@@ -219,7 +222,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Libre+Franklin:wght@600&display=swap" rel="stylesheet"> 
         <p><span id="timestamp"></span></p>
         <table id="psi_table"></table>
-        <p><em>Source: </em><a href="https://data.gov.sg/dataset/psi" target="_blank">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
+        <p><em>Source: </em><a href="https://data.gov.sg/dataset/psi" target="_blank" color="#9acbfcc4">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
         
     
         <script>
@@ -310,232 +313,294 @@
                 </script>
             </div>
         </div>
-      
-        <div class="main">
 
-      <h2>Simple Query Data Using API</h2>
-      <p>How does the price of 4-Room flats in Ang Mo Kio compare between 2017 to 2022?</p>
-      <p>Aim: To explore how the prices of 4-Room HDB flats have changed over the last 6 years based on the median price.</p>
+             <!--Chart Starts Here-->
+             <div class = "chart-grid">
 
-      <div class="chartBox">
-          <canvas id="myChart"></canvas>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.3/d3.min.js" integrity="sha512-Bg2eiKHzTFFm3RXa2xWihCacicF47EiEtkk/qD2UpqimWHNnQsIJxuwrf958rNHVvkpcjRgUyPblU6LOoAxTSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-          <script>
-              const chartData = 'Assets/Charts/HDB-4Rm/Data/new_resaleAMK_median.csv';
+                <h2>HDB Prices in Ang Mo Kio</h2>
+                <p>How has the price of flats in Ang Mo Kio changed since 2007?</p>
+               
+                <label for="flat-type">Select Flat Type: </label>
+                    <select id="flat-type">
+                        <option value="3-room">3-Room</option>
+                        <option value="4-room">4-Room</option>
+                        <option value="5-room">5-Room</option>
+                    </select>
+                    <svg id="chart"></svg>
+                </div>
 
-              //parse the file from CSV to JSON
-              d3.csv(chartData).then(function(datapoints){
-                  console.log(datapoints)
-                  const resalePrice = [];
-                  const Year = [];
+                <script>
+                    window.onload = function() {  // Ensures script runs after page loads
+                    const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+                    const width = 960;
+                    const height = 500;
 
-                  for (i = 0; i < datapoints.length; i++) {
-                      resalePrice.push(datapoints[i].resale_price)
-                      Year.push(datapoints[i].Year)
-                  }
+                    // Create SVG
+                    const svg = d3.select("#chart")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .attr("viewBox", `0 0 ${width} ${height}`) 
+                        .style ("max-width", "100%")
+                        .style ("height", "auto");
 
-                  // setup
-                  const data = {
-                      labels: Year,
-                      datasets: [{
-                          label: 'Median Resale Price $',
-                          data: resalePrice,
-                          backgroundColor: [
-                              'rgba(0, 31, 125, 0.5)',
-                              'rgba(0, 31, 125, 0.5)',
-                              'rgba(255, 206, 86, 0.5)',
-                              'rgba(75, 192, 192, 0.5)',
-                              'rgba(0, 31, 125, 0.5)',
-                              'rgba(0, 31, 125, 0.5)',
-                              'rgba(0, 31, 125, 0.5)'
-                          ],
-                          borderColor: [
-                              'rgba(0, 31, 125, 0.8)',
-                              'rgba(0, 31, 125, 0.8)',
-                              'rgba(255, 206, 86, 1)',
-                              'rgba(75, 192, 192, 1)',
-                              'rgba(0, 31, 125, 0.8)',
-                              'rgba(0, 31, 125, 0.8)',
-                              'rgba(0, 31, 125, 0.8)'
-                          ],
-                          borderWidth: 1
-                      }]
-                  };
-
-                  // config
-                  const config = {
-                      type: 'bar',
-                      data,
-                      options: {
-                          scales: {
-                              y: {
-                                  beginAtZero: true
-                              }
-                          }
-                      }
-                  };
-
-                  // render init block
-                  const myChart = new Chart(
-                      document.getElementById('myChart'),
-                      config
-                  );
-
-              });
-          </script>
-      </div>
-    </div>
-      
-    <div class="main">
-        <h2>Simple Choropleth Map of Singapore's Population</h2>
-        <p>Based on population data from 2022</p>
-
-        <div id="map-container">
-            <svg></svg> <!-- Add this SVG container for D3 to draw on -->
-            <div class="legend-container"></div> <!-- Legend container -->
-        </div>
-
-        <div id="tooltip"></div> <!-- Add this div for the tooltip -->
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.3/d3.min.js" integrity="sha512-Bg2eiKHzTFFm3RXa2xWihCacicF47EiEtkk/qD2UpqimWHNnQsIJxuwrf958rNHVvkpcjRgUyPblU6LOoAxTSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-        <script>
-            const [WIDTH, HEIGHT] = [1200, 700]
-            const state = {}
-
-            function setupSvg() {
-                state['svg'] = d3.select("svg")
-                    .attr("viewBox", "0 0 " + WIDTH + " " + HEIGHT)
-                    .attr('width', WIDTH)
-                    .attr('height', HEIGHT)
-                    .style('transform-origin', 'center') 
-                    .style('transform', 'rotate(10deg)');
-                state['legend'] = d3.select('.legend-container'); // Create the legend container as a separate div (inside the SVG)
-            }
-
-            async function loadData() {
-                const [mapData, popData] = await 
-                Promise.all([d3.json("Assets/Choropleth/sgmap.json"), 
-                d3.csv("Assets/Choropleth/population2022.csv")]);
-
-                state['mapData'] = mapData
-                state['subzoneToPopMap'] = {}
-                state['subzoneToSubzoneMap']= {}
-                for (const { Subzone, Population, PlanningArea } of popData) {
-                    const normalizedSubzone = Subzone.toLowerCase().trim();
-                    state['subzoneToPopMap'][normalizedSubzone.toLowerCase()] = +Population;
-                    state['subzoneToSubzoneMap'][normalizedSubzone.toLowerCase()] = Subzone;
-                }
-
-                console.log('mapData', mapData);
-                console.log('popData', popData);
-                console.log('subzoneToPopMap', state['subzoneToPopMap']);
-                console.log('subzoneToSubzoneMap', state['subzoneToSubzoneMap']);
-            }
-
-            function featureToPop(feature) {
-                return state['subzoneToPopMap'][feature.properties['Subzone Name'].toLowerCase().trim()] || -1
-            }
-
-            function featureToPlanningArea(feature) {
-                 return state['subzoneToSubzoneMap'][feature.properties['Subzone Name'].toLowerCase()] || "Unknown";
-            }
-
-            async function main() {
-                setupSvg()
-                await loadData()
-
-                // Map and projection
-                var projection = d3.geoMercator()
-                    .center([103.851959, 1.290270])
-                    .fitExtent([[20, 20], [980, 580]], state['mapData']);
-
-                let geopath = d3.geoPath().projection(projection);
-
-                // Draw the map
-                const vals = Object.values(state.subzoneToPopMap)
-                const scale = d3.scaleSequential(d3.interpolateWarm).domain([d3.min(vals), d3.max(vals)])
-                const tooltip = d3.select('#tooltip')
-
-                state['svg'].append("g")
-                    .attr("id", "districts")
-                    .selectAll("path")
-                    .data(state['mapData'].features)
-                    .enter()
-                    .append("path")
-                    .attr("d", geopath)
-                    .attr("fill", f => {
-                        const val = featureToPop(f)
-                        if (val == -1) return 'black'
-                        return scale(val)
-                    })
-                    .on("mouseover", function(e, f) {		
-                        const subzoneName = f.properties['Subzone Name'].toLowerCase().trim();
-                        const pop = featureToPop(f)
-                        const subzone = state['subzoneToSubzoneMap'][subzoneName] || "Unknown";
-                        tooltip
-                            .style('opacity', 1)
-                            .style("left", (e.pageX) + "px")		
-                            .style("top", (e.pageY - 28) + "px")
-                            .html(`
-                            <div style = "font-size: 0.86em; padding: 5px; line-height:1.5;">
-                                <strong>Subzone:</strong> ${subzone} <br>
-                                <strong> Population:</strong> ${pop == -1 ? "Uknown" : pop}
-                            </div>
-                        `);
-                    })					
-                    .on("mouseout", function() {		
-                        tooltip.style('opacity', 0)
+                        d3.csv("Assets/Charts/HDB-4Rm/Data/AMK_yearly_median_by_flat_type.csv").then(data => {
+                    // Parse CSV Data
+                    data.forEach(d => {
+                        d.year = +d.year;  // Convert year to number
+                        d.agg_median = +d.agg_median;  // Convert median price to number
                     });
+
+                    // Extract unique flat types
+                    const flatTypes = Array.from(new Set(data.map(d => d.flat_type)));
+
+                    if (flatTypes.length === 0) {
+                        console.error("No flat type data found!");
+                        return;
+                    }
+
+                    // Populate dropdown menu
+                    const dropdown = d3.select("#flat-type");
+                    dropdown.selectAll("option")
+                        .data(flatTypes)
+                        .enter()
+                        .append("option")
+                        .text(d => d)
+                        .attr("value", d => d);
+
+                     // Function to update chart
+                        function updateChart(flatType) {
+                            const filteredData = data.filter(d => d.flat_type === flatType);
+
+                            if (filteredData.length === 0) {
+                            console.warn(`No data found for ${flatType}`);
+                            svg.selectAll("*").remove();  // Clear chart if no data
+                            return;
+                        }
+                            // Scales
+                            const x = d3.scaleBand()
+                                .domain(filteredData.map(d => d.year))
+                                .range([margin.left, width - margin.right])
+                                .padding(0.1);
+
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(filteredData, d => d.agg_median)])
+                                .nice()
+                                .range([height - margin.bottom, margin.top]);
+
+                            // Clear previous chart
+                            svg.selectAll("*").remove();
+
+                            // Draw bars
+                            svg.append("g")
+                                .attr("fill", "#8ba7fb")
+                                .selectAll("rect")
+                                .data(filteredData)
+                                .join("rect")
+                                .attr("x", d => x(d.year))
+                                .attr("y", d => y(d.agg_median))
+                                .attr("height", d => height - margin.bottom - y(d.agg_median))  
+                                .attr("width", x.bandwidth());
+
+                            // X-Axis
+                            svg.append("g")
+                                .attr("transform", `translate(0,${height - margin.bottom})`)
+                                .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+                                .selectAll("text")
+                                .attr("transform", "rotate(-45)")
+                                .style("text-anchor", "end")
+                                .style ("fill", "white")
+                                .style("font-size", "12px");
+
+                                // X-axis ticks
+                                svg.selectAll (".tick line")
+                                    .style("stroke", "white");
+
+
+                            // Y-Axis
+                           const yAxis = svg.append("g")
+                                .attr("transform", `translate(${margin.left},0)`)
+                                .call(d3.axisLeft(y).tickFormat(d3.format("$,.0f")))
+                                .call(g => g.select(".domain").remove())
+                                yAxis.selectAll("text")
+                                .style ("fill", "white")
+                                .style("font-size", "12px");
+
+                                // Y-axis ticks
+                                yAxis.selectAll(".tick line")
+                                    .style("stroke", "white");
+                        }
+
+                        // Initialize chart with the first flat type
+                        updateChart(flatTypes[0]);
+
+                        // Update chart on dropdown change
+                        dropdown.on("change", function() {
+                            updateChart(this.value);
+                        });
+                    }).catch(error => console.error("Error loading CSV:", error));
+                 };
+                </script>
+                <div class = "main">  
+                <p><em>Source: </em><a href="https://data.gov.sg/datasets/d_b51323a474ba789fb4cc3db58a3116d4/view" target="_blank" color="#9acbfcc4"> Median Resale Prices for Registered Applications by Town and Flat Type [Dataset]- data.gov.sg</a></p>
+                </div>
+            </div>
+               
+            
+                    <!--Choropleth Map-->
                 
-                // Legend Title
-                state['legend']
-                    .append('div')
-                    .style('text-align', 'center')
-                    .style('font-weight', 'bold')
-                    .style('margin-bottom', '10px')
-                    .text('Population Legend');
+                    <div class="main">
+                        <h2>Simple Choropleth Map of Singapore's Population</h2>
+                        <p>Roll over to see population on district.</p>
+                        <p>Based on population data from 2022</p>
+                           
 
-                // Create Legend Points
-                const points = [-1]
-                const NUM_POINTS = 10
-                const [domainMin, domainMax] = scale.domain()
-                for (let i = 0; i < NUM_POINTS; i++) {
-                    const point = domainMin + (domainMax - domainMin) / (NUM_POINTS - 1) * i
-                    points.push(point)
-
-                }
+                        <div class="map-container">
+                            <svg id = "svg_choropleth" width = 1200 height = 700></svg> <!-- Add this SVG container for D3 to draw on -->
+                            <div class ="legend-container"></div> <!-- Legend container --> 
+                        </div>
+                        
+                            <div id ='tooltip' style = "position: absolute; overflow: none ; z-index: 10; opacity:0; background: rgba(0,0,0,0.6); color: #ffffff"></div><!-- Tooltip container -->           
+                        
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.3/d3.min.js" integrity="sha512-Bg2eiKHzTFFm3RXa2xWihCacicF47EiEtkk/qD2UpqimWHNnQsIJxuwrf958rNHVvkpcjRgUyPblU6LOoAxTSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+          
+                         <script>
+                            const [WIDTH, HEIGHT] = [1200, 700]
+                            const state = {}
                 
-                const legendPoint = state['legend']
-                    .selectAll('div.legend-item')
-                    .data(points)
-                    .enter()
-                    .append('div')
-                    .style('display', 'flex')
-                    .style('align-items', 'center')
-                    .style('margin-bottom', '5px');
+                            function setupSvg() {
+                                state['svg'] = d3.select("#svg_choropleth")
+                                    .attr("viewBox", "0 0 " + WIDTH + " " + HEIGHT)
+                                    .attr('width', WIDTH)
+                                    .attr('height', HEIGHT)
+                                    .style('transform-origin', 'center') 
+                                    .style('transform', 'rotate(10deg)');
+                                state['legend'] = d3.select('.legend-container'); // Create the legend container as a separate div (inside the SVG)
+                            }
                 
-                const R = 10
-                const Y_START = 30
+                            async function loadData() {
+                                const [mapData, popData] = await 
+                                Promise.all([d3.json("Assets/Choropleth/sgmap.json"), 
+                                d3.csv("Assets/Choropleth/population2022.csv")]);
+                
+                                state['mapData'] = mapData
+                                state['subzoneToPopMap'] = {}
+                                state['subzoneToSubzoneMap']= {}
+                                for (const { Subzone, Population, PlanningArea } of popData) {
+                                    const normalizedSubzone = Subzone.toLowerCase().trim();
+                                    state['subzoneToPopMap'][normalizedSubzone.toLowerCase()] = +Population;
+                                    state['subzoneToSubzoneMap'][normalizedSubzone.toLowerCase()] = Subzone;
+                                }
+                
+                                console.log('mapData', mapData);
+                                console.log('popData', popData);
+                                console.log('subzoneToPopMap', state['subzoneToPopMap']);
+                                console.log('subzoneToSubzoneMap', state['subzoneToSubzoneMap']);
+                            }
+                
+                            function featureToPop(feature) {
+                                return state['subzoneToPopMap'][feature.properties['Subzone Name'].toLowerCase().trim()] || -1
+                            }
+                
+                            function featureToPlanningArea(feature) {
+                           return state['subzoneToSubzoneMap'][feature.properties['Subzone Name'].toLowerCase()] || "Unknown";
+                            }
+          
+                            async function main() {
+                            setupSvg()
+                            await loadData()
+            
+                            // Map and projection
+                            var projection = d3.geoMercator()
+                                .center([103.851959, 1.290270])
+                                .fitExtent([[20, 20], [980, 580]], state['mapData']);
+            
+                                let geopath = d3.geoPath().projection(projection);
+                
+                                // Draw the map
+                                const vals = Object.values(state.subzoneToPopMap)
+                                const scale = d3.scaleSequential(d3.interpolateWarm).domain([d3.min(vals), d3.max(vals)])
+                                const tooltip = d3.select('#tooltip')
+                
+                                state['svg'].append("g")
+                                    .attr("id", "districts")
+                                    .selectAll("path")
+                                    .data(state['mapData'].features)
+                                    .enter()
+                                    .append("path")
+                                    .attr("d", geopath)
+                                    .attr("fill", f => {
+                                        const val = featureToPop(f)
+                                        if (val == -1) return 'black'
+                                        return scale(val)
+                                    })
 
-                legendPoint.append('div')
-                    .style('width', '20px')
-                    .style('height', '20px')
-                    .style('background-color', p => (p === -1 ? 'black' : scale(p)))
-                    .style('margin-right', '10px');
+                                    .on("mouseover", function(e, f) {		
+                                        const subzoneName = f.properties['Subzone Name'].toLowerCase().trim();
+                                        const pop = featureToPop(f);
+                                        const subzone = state['subzoneToSubzoneMap'][subzoneName] || "Unknown";
+                                        tooltip
+                                        .style('opacity', 1)
+                                        .style("left", (e.pageX +10) + "px")
+                                        .style ("top", (e.pageY -28) + "px")
+                                        .html (`
+                                            <div style = "font-size: 0.86em; padding: 5px; line-height:1.5;">
+                                                <strong>Subzone:</strong> ${subzone} <br>
+                                                <strong> Population:</strong> ${pop == -1 ? "Unknown" : pop}
+                                            </div>
+                                        `);
+                                        })
+                              
+                                    .on("mouseout", function() {		
+                                    tooltip.style('opacity', 0)
+                                    })
+                                    
+                                
+                                    // Legend Title
+                                        state['legend']
+                                            .append('div')
+                                            .style('text-align', 'center')
+                                            .style('font-weight', 'bold')
+                                            .style('margin-bottom', '10px')
+                                            .text('Population Legend');
+                
+                                    // Create Legend Points
+                                        const points = [-1]
+                                        const NUM_POINTS = 10
+                                        const [domainMin, domainMax] = scale.domain()
+                                        for (let i = 0; i < NUM_POINTS; i++) {
+                                            const point = domainMin + (domainMax - domainMin) / (NUM_POINTS - 1) * i
+                                            points.push(point)
+                        
+                                        }
+                                        
+                                        const legendPoint = state['legend']
+                                            .selectAll('div.legend-item')
+                                            .data(points)
+                                            .enter()
+                                            .append('div')
+                                            .style('display', 'flex')
+                                            .style('align-items', 'center')
+                                            .style('margin-bottom', '5px');
+                                        
+                                        const R = 10
+                                        const Y_START = 30
+                        
+                                        legendPoint.append('div')
+                                            .style('width', '20px')
+                                            .style('height', '20px')
+                                            .style('background-color', p => (p === -1 ? 'black' : scale(p)))
+                                            .style('margin-right', '10px');
+                        
+                                        legendPoint.append('span')
+                                            .attr('x', WIDTH - 200 + R*3)
+                                            .attr('y', (_, idx) => Y_START + idx * 30 + R/2)
+                                            .text(p => p == -1 ? "No Data" : Math.round(p))
+                                            .attr('fill', p => p == -1 ? 'lightgrey' : scale(p))
 
-                legendPoint.append('span')
-                    .attr('x', WIDTH - 200 + R*3)
-                    .attr('y', (_, idx) => Y_START + idx * 30 + R/2)
-                    .text(p => p == -1 ? "No Data" : Math.round(p))
-                    .attr('fill', p => p == -1 ? 'lightgrey' : scale(p))
-                    
-
-            }
-
-            main()
-        </script>
-    </div>
-</body>
-</html>
+                                    }
+                                main();                                                                       
+                            </script>
+                            </div>
+                        </div>
+                    </body>
+                </html>
