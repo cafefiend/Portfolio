@@ -47,22 +47,13 @@
             overflow: auto;
             text-align: left;
         }
-
-        .footer {
-            text-align: center;
-            margin: 20px;
-            padding: 5px;
-            width: 100vw;
-            background-color: rgb(146, 144, 144);
-            color: rgb(0, 0, 0);
-        }
-        
+     
         /* PSI Table Style */
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            background-color: #9acbfcc4;
+            background-color: #8ba7fb;
             color: #29292c;
         }
 
@@ -73,12 +64,12 @@
 
         th {
             background-color: #29292c;
-            color: #9acbfcc4;
+            color: #8ba7fb;
             text-transform: capitalize;
         }
 
         tr:nth-child(even) {
-            background-color: #b2c5eb;
+            background-color: #8ba7fb;
         }
 
         tr:nth-child(odd) {
@@ -123,23 +114,13 @@
         /*Chart Styles*/
         .chart-grid {
             box-sizing: border-box;
-            width: 80%;
-            max-width: 1200px;
+            width: 960px;
+            margin: auto;
             padding: 0 20px;
             overflow: auto;
 
         }
-            .chartBox {
-            width: 100%;
-            min-height: fit-content;
-            padding: 20px;
-            border-radius: 10px;
-            border: solid 1px rgb(255, 255, 255);
-            background: white;
-            margin: 10px auto;
-            text-align: center;
-        }
-
+            
         #barChart {
             width: 100%;
             height: auto;
@@ -148,43 +129,10 @@
         }
         
         /* Dropdown Menu*/
-        .dropbtn {
-            background-color: #8ba7fb;
-            color: white;
-            padding: 16px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .dropbtn:hover, .dropbtn:focus {
-            background-color: #586996;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #586996;
+        label {
+            color: white; 
+            font-size: 12px;
+            font-weight: bold;
         }
 
         /* SVG styles for choropleth */
@@ -369,14 +317,135 @@
              <!--Chart Starts Here-->
              <div class = "chart-grid">
 
-                <h2>Simple Query Data Using API</h2>
-                <p>How does the price of 4-Room flats in Ang Mo Kio compare between 2017 to 2022?</p>
-                <p>Aim: To explore how the prices of 4-Room HDB flats have changed over the last 6 years based on the median price.</p>
-            
+                <h2>HDB Prices in Ang Mo Kio</h2>
+                <p>How has the price of flats in Ang Mo Kio changed since 2007?</p>
+               
+                <label for="flat-type">Select Flat Type: </label>
+                    <select id="flat-type">
+                        <option value="3-room">3-Room</option>
+                        <option value="4-room">4-Room</option>
+                        <option value="5-room">5-Room</option>
+                    </select>
+                    <svg id="chart"></svg>
+                </div>
+
+                <script>
+                    window.onload = function() {  // Ensures script runs after page loads
+                    const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+                    const width = 960;
+                    const height = 500;
+
+                    // Create SVG
+                    const svg = d3.select("#chart")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .attr("viewBox", `0 0 ${width} ${height}`) 
+                        .style ("max-width", "100%")
+                        .style ("height", "auto");
+
+                        d3.csv("Assets/Charts/HDB-4Rm/Data/AMK_yearly_median_by_flat_type.csv").then(data => {
+                    // Parse CSV Data
+                    data.forEach(d => {
+                        d.year = +d.year;  // Convert year to number
+                        d.agg_median = +d.agg_median;  // Convert median price to number
+                    });
+
+                    // Extract unique flat types
+                    const flatTypes = Array.from(new Set(data.map(d => d.flat_type)));
+
+                    if (flatTypes.length === 0) {
+                        console.error("No flat type data found!");
+                        return;
+                    }
+
+                    // Populate dropdown menu
+                    const dropdown = d3.select("#flat-type");
+                    dropdown.selectAll("option")
+                        .data(flatTypes)
+                        .enter()
+                        .append("option")
+                        .text(d => d)
+                        .attr("value", d => d);
+
+                     // Function to update chart
+                        function updateChart(flatType) {
+                            const filteredData = data.filter(d => d.flat_type === flatType);
+
+                            if (filteredData.length === 0) {
+                            console.warn(`No data found for ${flatType}`);
+                            svg.selectAll("*").remove();  // Clear chart if no data
+                            return;
+                        }
+                            // Scales
+                            const x = d3.scaleBand()
+                                .domain(filteredData.map(d => d.year))
+                                .range([margin.left, width - margin.right])
+                                .padding(0.1);
+
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(filteredData, d => d.agg_median)])
+                                .nice()
+                                .range([height - margin.bottom, margin.top]);
+
+                            // Clear previous chart
+                            svg.selectAll("*").remove();
+
+                            // Draw bars
+                            svg.append("g")
+                                .attr("fill", "#8ba7fb")
+                                .selectAll("rect")
+                                .data(filteredData)
+                                .join("rect")
+                                .attr("x", d => x(d.year))
+                                .attr("y", d => y(d.agg_median))
+                                .attr("height", d => height - margin.bottom - y(d.agg_median))  
+                                .attr("width", x.bandwidth());
+
+                            // X-Axis
+                            svg.append("g")
+                                .attr("transform", `translate(0,${height - margin.bottom})`)
+                                .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+                                .selectAll("text")
+                                .attr("transform", "rotate(-45)")
+                                .style("text-anchor", "end")
+                                .style ("fill", "white")
+                                .style("font-size", "12px");
+
+                                // X-axis ticks
+                                svg.selectAll (".tick line")
+                                    .style("stroke", "white");
+
+
+                            // Y-Axis
+                           const yAxis = svg.append("g")
+                                .attr("transform", `translate(${margin.left},0)`)
+                                .call(d3.axisLeft(y).tickFormat(d3.format("$,.0f")))
+                                .call(g => g.select(".domain").remove())
+                                yAxis.selectAll("text")
+                                .style ("fill", "white")
+                                .style("font-size", "12px");
+
+                                // Y-axis ticks
+                                yAxis.selectAll(".tick line")
+                                    .style("stroke", "white");
+                        }
+
+                        // Initialize chart with the first flat type
+                        updateChart(flatTypes[0]);
+
+                        // Update chart on dropdown change
+                        dropdown.on("change", function() {
+                            updateChart(this.value);
+                        });
+                    }).catch(error => console.error("Error loading CSV:", error));
+                 };
+                </script>
+                <div class = "main">  
+                <p><em>Source: </em><a href="https://data.gov.sg/datasets/d_b51323a474ba789fb4cc3db58a3116d4/view" target="_blank" color="#9acbfcc4"> Median Resale Prices for Registered Applications by Town and Flat Type [Dataset]- data.gov.sg</a></p>
+                </div>
             </div>
-                <!-- Create a div where the graph will take place -->
-                
-                
+               
+            
                     <!--Choropleth Map-->
                 
                     <div class="main">
