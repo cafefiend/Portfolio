@@ -37,9 +37,7 @@
         h2 {
             color: rgb(101, 135, 228);
         }
-        a:visited {
-            color: #9683f6;
-        }
+       
         .main {
             width: 80%;
             max-width: 1200px;
@@ -47,7 +45,23 @@
             overflow: auto;
             text-align: left;
         }
-     
+
+        a:link {
+            color: #ffffff;
+            text-decoration: none;
+        }
+            a:hover {
+            color: #cccccc;
+        }
+        
+        a:active {
+            color:#6969c8
+        }
+
+        a:visited {
+            color: #8d83f6;
+        }
+
         /* PSI Table Style */
         table {
             width: 100%;
@@ -130,7 +144,7 @@
         
         /* Dropdown Menu*/
         label {
-            color: white; 
+            color: rgb(255, 255, 255); 
             font-size: 12px;
             font-weight: bold;
         }
@@ -210,7 +224,9 @@
     <div class="table"> 
 
         <meta charset="UTF-8">
-        <h2>Live PSI Indicator</h2>
+        <h2>Realtime PSI Indicator</h2>
+        <p>Created using javascript, parsing data from the National Environment Agency, at data.gov.sg.</p>
+
     
         <!-- Pulling JQuery from Google API -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -222,7 +238,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Libre+Franklin:wght@600&display=swap" rel="stylesheet"> 
         <p><span id="timestamp"></span></p>
         <table id="psi_table"></table>
-        <p><em>Source: </em><a href="https://data.gov.sg/dataset/psi" target="_blank" color="#9acbfcc4">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
+        <p><em>Source: </em><a href="https://data.gov.sg/dataset/psi" target="_blank">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
         
     
         <script>
@@ -319,6 +335,9 @@
 
                 <h2>HDB Prices in Ang Mo Kio</h2>
                 <p>How has the price of flats in Ang Mo Kio changed since 2007?</p>
+                <p>Created using javascript and d3.</p>
+                <br>
+                <br>
                
                 <label for="flat-type">Select Flat Type: </label>
                     <select id="flat-type">
@@ -440,8 +459,9 @@
                     }).catch(error => console.error("Error loading CSV:", error));
                  };
                 </script>
+
                 <div class = "main">  
-                <p><em>Source: </em><a href="https://data.gov.sg/datasets/d_b51323a474ba789fb4cc3db58a3116d4/view" target="_blank" color="#9acbfcc4"> Median Resale Prices for Registered Applications by Town and Flat Type [Dataset]- data.gov.sg</a></p>
+                <p><em>Source: </em><a href="https://data.gov.sg/datasets/d_b51323a474ba789fb4cc3db58a3116d4/view" target="_blank" color="#9acbfcc4"> Median Resale Prices for Registered Applications by Town and Flat Type [Dataset] from data.gov.sg</a></p>
                 </div>
             </div>
                
@@ -450,8 +470,9 @@
                 
                     <div class="main">
                         <h2>Simple Choropleth Map of Singapore's Population</h2>
-                        <p>Roll over to see population on district.</p>
-                        <p>Based on population data from 2022</p>
+                        <p>Roll over to see population on district. Created using javascript and d3, based on population data from 2022.</p>
+                        <br>
+                        <br>
                            
 
                         <div class="map-container">
