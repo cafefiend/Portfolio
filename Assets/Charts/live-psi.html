@@ -126,19 +126,16 @@
     <h1>Live PSI update</h1>
     <p><span id="timestamp"></span></p>
     <table id="psi_table"></table>
-    <p><em>Source: </em><a href="https://data.gov.sg/dataset/psi" target="_blank">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
+    <p><em>Source: </em><a href="https://data.gov.sg/datasets/d_fe37906a0182569d891506e815e819b7/view" target="_blank">Pollutant Standards Index (PSI) - data.gov.sg</a></p>
   
 
     <script>
-        let raw_data = {};
-        let readings = {};
-        let timestamp = "";
         let rows = {
             psi_twenty_four_hourly: "PSI (24h)",
             pm10_twenty_four_hourly: "PM10 (24h)",
             pm10_sub_index: "PM10 (sub-index)",
-            pm25_twenty_four_hourly: "PM25 (24h)",
-            pm25_sub_index: "PM25 (sub-index)",
+            pm25_twenty_four_hourly: "PM2.5 (24h)",
+            pm25_sub_index: "PM2.5 (sub-index)",
             so2_twenty_four_hourly: "SO<sub>2</sub> (24h)",
             so2_sub_index: "SO<sub>2</sub> (sub-index)",
             co_eight_hour_max: "CO (8h)",
@@ -147,38 +144,40 @@
             o3_eight_hour_max: "O<sub>3</sub> (8h)",
             o3_sub_index: "O<sub>3</sub> (sub-index)"
         };
-        let columns = ["central","north","south","east","west","national"];
+        let columns = ["central","north","south","east","west"];
         let def_table = {
-            // Placeholder definitions
-            psi_twenty_four_hourly: "PSI (24h)",
-            pm10_twenty_four_hourly: "PM10 (24h)",
-            pm10_sub_index: "PM10 (sub-index)",
-            pm25_twenty_four_hourly: "PM25 (24h)",
-            pm25_sub_index: "PM25 (sub-index)",
-            so2_twenty_four_hourly: "SO<sub>2</sub> (24h)",
-            so2_sub_index: "SO<sub>2</sub> (sub-index)",
-            co_eight_hour_max: "CO (8h)",
-            co_sub_index: "CO (sub-index)",
-            no2_one_hour_max: "NO<sub>2</sub> (1h)",
-            o3_eight_hour_max: "O<sub>3</sub> (8h)",
-            o3_sub_index: "O<sub>3</sub> (sub-index)"
+            psi_twenty_four_hourly: "PSI (last 24 hr)",
+            pm10_twenty_four_hourly: "Hourly PM10 (24 hr)",
+            pm10_sub_index: "PM10 sub-index",
+            pm25_twenty_four_hourly: "Hourly PM2.5 (24 hr)",
+            pm25_sub_index: "PM2.5 (sub-index)",
+            so2_twenty_four_hourly: "Average sulphur dioxide (24 hr)",
+            so2_sub_index: "Sulphur dioxide sub-index",
+            co_eight_hour_max: "Max. carbon monoxide (8 hr)",
+            co_sub_index: "Carbon monoxide sub-index.",
+            no2_one_hour_max: "Max. nitrogen dioxide (1 hr)",
+            o3_eight_hour_max: "Max. ozone (8 hr)",
+            o3_sub_index: "Ozone sub-index."
         };
 
         async function fetchdata() {
-            let response = await fetch('https://api.data.gov.sg/v1/environment/psi');
-            let data = await response.json();
-            return data;
+            const response = await fetch('https://api-open.data.gov.sg/v2/real-time/api/psi');
+            if (!response.ok) {
+                throw new Error(`PSI API request failed: ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            const item = result.data?.items?.[0];
+            if (result.code !== 0 || !item?.readings) {
+                throw new Error(result.errorMsg || "The PSI API response did not include readings.");
+            }
+            return item;
         };
 
-        fetchdata().then(data => {
+        fetchdata().then(item => {
+            const readings = item.readings;
             
-            raw_data = data;
-            readings = raw_data["items"][0]["readings"];
-            
-            // Append timestamp
-            timestamp += "<em>Last updated: </em>";
-            timestamp += Date(raw_data["items"][0]["timestamp"]);
-            $("#timestamp").append(timestamp);            
+            $("#timestamp").html(`<em>Last updated: </em>${new Date(item.updatedTimestamp || item.timestamp).toLocaleString()}`);
 
             // Populate psi_table with columns
             $("#psi_table").append(`
@@ -203,22 +202,22 @@
                     </tr>
                 `);
                 $.each(columns, function(index, region){
-                    $(`#${key}`).append(`
-                        <td>${readings[key][region]}</td>
-                    `);
+                    const value = readings[key]?.[region] ?? "—";
+                    $(`#${key}`).append(`<td>${value}</td>`);
                 });
             });
 
           
             $.each(def_table, function(key, value) {
-                let id = key + "_hover";
-                $("#" + id).append(key);
+                $("#" + key + "_hover").text(value);
             });
 
-            
+        }).catch(error => {
+            console.error("Unable to load PSI data:", error);
+            $("#timestamp").text("Unable to load PSI data. Please try again later.");
         });
     </script>
 
 </body>
 
-</html>}
+</html>
